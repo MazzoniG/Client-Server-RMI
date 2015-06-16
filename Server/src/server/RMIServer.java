@@ -1,3 +1,5 @@
+package server;
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,15 +14,19 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import rmi.RMI;
 
-
 /**
  *
  * @author Guillermo
  */
 public class RMIServer extends UnicastRemoteObject implements RMI {
-  
-    public RMIServer() throws RemoteException{
+
+    public RMIServer() throws RemoteException {
         super();
+    }
+
+    @Override
+    public Object mazzoniSeLaCome() throws RemoteException {
+        return new entryNode();
     }
 
     @Override
@@ -28,24 +34,25 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         text = "Hello " + text;
         return text;
     }
-    
+
     @Override
-    public void printInServerSide(String msg) throws RemoteException{
+    public void printInServerSide(String msg) throws RemoteException {
         System.out.println(msg);
     }
-    
+
     static DefaultTreeModel archiveStructure = null;
-    public static void main(String args[]){
+
+    public static void main(String args[]) {
         //loadBinaryFile();
         try {
-            Registry reg = LocateRegistry.createRegistry(1100);
+            Registry reg = LocateRegistry.createRegistry(1101);
             reg.rebind("server", new RMIServer());
             System.out.println("Server started..");
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
-    
+
     private static void loadBinaryFile() {
         File file = null;
         try {
@@ -76,7 +83,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             e.printStackTrace();
         }
     }
-    
+
     private static void saveToBinaryFile() {
         File file = null;
         try {
@@ -94,5 +101,5 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             ext.printStackTrace();
         }
     }
-    
+
 }
