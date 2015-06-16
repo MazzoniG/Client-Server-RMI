@@ -12,25 +12,25 @@ import java.io.Serializable;
  */
 public class entryNode implements Serializable{
     private String name;
-    private String Parent;
+    private entryNode father;
     private int DataNode;
-    private boolean isFile;
+    private boolean isDir;
+    
+    //Constructor para el root
+    public entryNode() {
+        this.name="/ROOT/DFS/";
+        this.father = null;
+        this.DataNode = -1;
+        this.isDir = true;
+    }
 
-    public entryNode(String name, String Parent, int DataNode, boolean isFile) {
+    public entryNode(String name, entryNode father, int DataNode, boolean isDir) {
         this.name = name;
-        this.Parent = Parent;
+        this.father = father;
         this.DataNode = DataNode;
-        this.isFile = isFile;
+        this.isDir = isDir;
     }
-
-    public boolean isIsFile() {
-        return isFile;
-    }
-
-    public void setIsFile(boolean isFile) {
-        this.isFile = isFile;
-    }
-
+    
     public String getName() {
         return name;
     }
@@ -39,12 +39,12 @@ public class entryNode implements Serializable{
         this.name = name;
     }
 
-    public String getParent() {
-        return Parent;
+    public entryNode getFather() {
+        return father;
     }
 
-    public void setParent(String Parent) {
-        this.Parent = Parent;
+    public void setFather(entryNode father) {
+        this.father = father;
     }
 
     public int getDataNode() {
@@ -54,6 +54,15 @@ public class entryNode implements Serializable{
     public void setDataNode(int DataNode) {
         this.DataNode = DataNode;
     }
+
+    public boolean isDir() {
+        return isDir;
+    }
+
+    public void setDir(boolean isDir) {
+        this.isDir = isDir;
+    }
+    
     
     
 }

@@ -53,7 +53,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             //If file does not exist, it creates a new archiveStructure
             //which is the structure of the file in the system
             if (!file.exists()) {
-                entryNode rootNode = new entryNode("/","", 1, false);
+                entryNode rootNode = new entryNode();
                 DefaultMutableTreeNode root = new DefaultMutableTreeNode(rootNode);
                 archiveStructure = new DefaultTreeModel(root);
             } else {

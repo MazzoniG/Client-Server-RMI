@@ -19,7 +19,8 @@ public class RMIClient {
     private void connectServer() {
         try {
 //            Scanner in = new Scanner(System.in);
-            Registry reg = LocateRegistry.getRegistry("127.0.0.1", 1099);
+            Registry reg = LocateRegistry.getRegistry("127.0.0.1",1099);
+            
             RMI rmi = (RMI) reg.lookup("server");
             System.out.println("Connected to Server");
             String text = rmi.getData("Memo");
