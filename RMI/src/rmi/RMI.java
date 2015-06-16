@@ -7,5 +7,5 @@ public interface RMI extends Remote {
     
     public String getData(String text) throws RemoteException;
     public void printInServerSide(String msg)throws RemoteException;
-    public Object mazzoniSeLaCome() throws RemoteException;
+    public Object getNode() throws RemoteException;
 }

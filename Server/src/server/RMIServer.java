@@ -1,5 +1,6 @@
 package server;
 
+import classes.entryNode;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +26,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
     }
 
     @Override
-    public Object mazzoniSeLaCome() throws RemoteException {
+    public Object getNode() throws RemoteException {
         return new entryNode();
     }
 

@@ -1,10 +1,12 @@
+package client;
+
 
 
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import rmi.RMI;
-import server.entryNode;
+import classes.entryNode;
 //import java.util.Scanner;
 
 /**
@@ -27,7 +29,7 @@ public class RMIClient {
             RMI rmi = (RMI) reg.lookup("server");
             System.out.println("Connected to Server");
             String text = rmi.getData("Memo");
-            entryNode novo = (entryNode)rmi.mazzoniSeLaCome();
+            entryNode novo = (entryNode)rmi.getNode();
             System.out.println("Test\n"+novo.getName());
             rmi.printInServerSide("This text has been printed in the side server ;)");
 //            for (int i = 0; i < 10; i++) {
