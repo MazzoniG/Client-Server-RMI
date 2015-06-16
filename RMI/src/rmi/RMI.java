@@ -7,5 +7,5 @@ import java.rmi.Remote;
 public interface RMI extends Remote {
 
     public String getData(String text) throws RemoteException;
-    
+    public void printInServerSide(String msg)throws RemoteException;
 }
