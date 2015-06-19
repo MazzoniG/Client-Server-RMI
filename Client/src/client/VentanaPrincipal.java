@@ -1,5 +1,6 @@
 package client;
 
+import classes.entryNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +9,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 public class VentanaPrincipal extends JFrame {
@@ -49,8 +52,12 @@ public class VentanaPrincipal extends JFrame {
                         
                         MenuItemDirectory.addActionListener(
                         new ActionListener(){
-                            public void actionPerformed(ActionEvent Event){
+                            public void actionPerformed(ActionEvent Event){                                
                                 System.out.println("Directorio");
+                                TreePath tp = Tree.getSelectionPath();
+                                DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                                DefaultMutableTreeNode node = new DefaultMutableTreeNode("Aqui va el textField");
+                                addDirectory(insertNode,"texto");
                             }
                         });
                     }
@@ -72,4 +79,19 @@ public class VentanaPrincipal extends JFrame {
     public static void main(String[] args) {
         new VentanaPrincipal();
     }
+    
+    
+        private  void addDirectory(DefaultMutableTreeNode Father, String Name) {
+        DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+//        entryNode novo = new entryNode(Name, (entryNode) Father.getUserObject(), -1, true);
+        model.insertNodeInto(new DefaultMutableTreeNode(Name), Father,0);
+        }
+
+    private void addTextFile(DefaultMutableTreeNode Father, String Name, String Content){
+        
+       // entryNode hijo = new entryNode(Name, )
+        
+    }
+    
 }
