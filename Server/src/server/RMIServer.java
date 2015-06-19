@@ -11,6 +11,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Enumeration;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import rmi.RMI;
@@ -101,6 +102,20 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         } catch (Exception ext) {
             ext.printStackTrace();
         }
+    }
+
+    private void addDirectory(DefaultMutableTreeNode Father, String Name) {
+
+        entryNode novo = new entryNode(Name, (entryNode) Father.getUserObject(), -1, true);
+        DefaultMutableTreeNode hijo= new DefaultMutableTreeNode(novo);
+        Father.add(hijo);
+        
+        }
+
+    private void addTextFile(DefaultMutableTreeNode Father, String Name, String Content){
+        
+       // entryNode hijo = new entryNode(Name, )
+        
     }
 
 }

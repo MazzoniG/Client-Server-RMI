@@ -67,6 +67,8 @@ public class entryNode implements Serializable{
         this.isDir = isDir;
     }
     
-    
+    public boolean equals(entryNode e){
+        return this.isDir == e.isDir && this.father ==e.father && this.name.equals(e.name); 
+    }
     
 }
