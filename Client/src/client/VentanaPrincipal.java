@@ -19,7 +19,6 @@ public class VentanaPrincipal extends JFrame {
     JTextArea TextArea = new JTextArea(25, 25);
     JTree Tree = new JTree();
     JScrollPane ScrollPane;
-    
 
     public VentanaPrincipal() {
         super("Ventana Principal");
@@ -35,31 +34,63 @@ public class VentanaPrincipal extends JFrame {
                     TreePath path = Tree.getPathForLocation(e.getX(), e.getY());
                     Rectangle pathBounds = Tree.getUI().getPathBounds(Tree, path);
                     if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
-                        
+
                         JPopupMenu menu = new JPopupMenu();
                         JMenuItem MenuItemFile = new JMenuItem("Crear Archivo");
                         menu.add(MenuItemFile);
                         JMenuItem MenuItemDirectory = new JMenuItem("Crear Directorio");
                         menu.add(MenuItemDirectory);
                         menu.show(Tree, pathBounds.x, pathBounds.y + pathBounds.height);
-                        
+
                         MenuItemFile.addActionListener(
-                        new ActionListener(){
-                            public void actionPerformed(ActionEvent Event){
-                                System.out.println("Archivo");
-                            }
-                        });
-                        
+                                new ActionListener() {
+                                    public void actionPerformed(ActionEvent Event) {
+
+                                        try {
+                                            if (Tree.getSelectionPath().toString().split(",").length > 2) {
+                                                DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                                                TreePath tp = Tree.getSelectionPath().getParentPath();
+                                                String name = JOptionPane.showInputDialog("Ingrese el nombre del archivo:");
+                                                model.insertNodeInto(new DefaultMutableTreeNode(name), (DefaultMutableTreeNode) tp.getLastPathComponent(), tp.getPathCount());
+                                                model.reload();
+
+                                                String TreePath[] = Tree.getSelectionPath().toString().split(",");
+                                                String Dir = TreePath[1];
+                                                System.out.println(Dir);
+
+                                            } else {
+                                                DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                                                TreePath tp = Tree.getSelectionPath();
+                                                DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                                                String name = JOptionPane.showInputDialog("Ingrese el nombre del archivo:");
+                                                model.insertNodeInto(new DefaultMutableTreeNode(name), (DefaultMutableTreeNode) tp.getLastPathComponent(), insertNode.getChildCount());
+                                                model.reload();
+
+                                                String TreePath[] = Tree.getSelectionPath().toString().split(",");
+                                                String Dir = TreePath[1];
+                                                String File = TreePath[2].substring(0, TreePath[2].length() - 1);
+
+                                                System.out.println(Dir);
+                                                System.out.println(File);
+                                            }
+                                        } catch (Exception e) {
+                                        }
+                                    }
+                                });
+
                         MenuItemDirectory.addActionListener(
-                        new ActionListener(){
-                            public void actionPerformed(ActionEvent Event){                                
-                                System.out.println("Directorio");
-                                TreePath tp = Tree.getSelectionPath();
-                                DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
-                                DefaultMutableTreeNode node = new DefaultMutableTreeNode("Aqui va el textField");
-                                addDirectory(insertNode,"texto");
-                            }
-                        });
+                                new ActionListener() {
+                                    public void actionPerformed(ActionEvent Event) {
+                                        System.out.println("Directorio");
+                                        DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                                        TreePath tp = Tree.getSelectionPath();
+                                        DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                                        String Dir = JOptionPane.showInputDialog("Ingrese el nombre del Directorio");
+                                        model.insertNodeInto(new DefaultMutableTreeNode(Dir), (DefaultMutableTreeNode) tp.getLastPathComponent(), tp.getPathCount());
+                                        model.reload();
+                                        //addDirectory(insertNode, "texto");
+                                    }
+                                });
                     }
                 }
             }
@@ -79,19 +110,16 @@ public class VentanaPrincipal extends JFrame {
     public static void main(String[] args) {
         new VentanaPrincipal();
     }
-    
-    
-        private  void addDirectory(DefaultMutableTreeNode Father, String Name) {
+
+    private void addDirectory(DefaultMutableTreeNode Father, String Name) {
         DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 //        entryNode novo = new entryNode(Name, (entryNode) Father.getUserObject(), -1, true);
-        model.insertNodeInto(new DefaultMutableTreeNode(Name), Father,0);
-        }
-
-    private void addTextFile(DefaultMutableTreeNode Father, String Name, String Content){
-        
-       // entryNode hijo = new entryNode(Name, )
-        
+        model.insertNodeInto(new DefaultMutableTreeNode(Name), Father, 0);
     }
-    
+
+    private void addTextFile(DefaultMutableTreeNode Father, String Name, String Content) {
+
+    }
+
 }
