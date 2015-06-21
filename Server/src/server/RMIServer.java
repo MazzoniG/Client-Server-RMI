@@ -11,6 +11,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
+import java.util.Enumeration;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import rmi.RMI;
@@ -49,6 +51,8 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             Registry reg = LocateRegistry.createRegistry(1101);
             reg.rebind("server", new RMIServer());
             System.out.println("Server started..");
+            loadBinaryFile();
+            
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -64,13 +68,16 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
                 entryNode rootNode = new entryNode();
                 DefaultMutableTreeNode root = new DefaultMutableTreeNode(rootNode);
                 archiveStructure = new DefaultTreeModel(root);
+                System.out.println("Lo cree");
             } else {
+                
                 //If file exists, it reads the file and cast
                 //that file in order to load it in archiveStructure
                 FileInputStream entry = new FileInputStream(file);
                 ObjectInputStream object = new ObjectInputStream(entry);
                 try {
                     archiveStructure = (DefaultTreeModel) object.readObject();
+                    System.out.println("Lo lei");
                 } catch (EOFException ex) {
 
                 } finally {
@@ -98,9 +105,66 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             object.flush();
             object.close();
             exit.close();
+            System.out.println("lo salve");
+             System.out.println("Archive Structure ahorita dentro de save es");
+         System.out.println(getTreeText(archiveStructure, archiveStructure.getRoot(), ""));
+            
         } catch (Exception ext) {
             ext.printStackTrace();
         }
     }
 
+    @Override
+    public  DefaultTreeModel getTreeModel()throws RemoteException{
+        loadBinaryFile();
+        System.out.println("Archive Structure ahorita es");
+        System.out.println(getTreeText(archiveStructure, archiveStructure.getRoot(), ""));
+        return archiveStructure;
+    }
+    
+
+    @Override
+    public boolean addDirectory(DefaultMutableTreeNode Parent, String Name) throws RemoteException{
+        entryNode hijo = new entryNode(Name, (entryNode)Parent.getUserObject(), -1,true);
+        System.out.println(Name);
+        System.out.println("Mi path es:");
+        System.out.println(Arrays.toString(Parent.getPath()));
+        entryNode NodoPadre = (entryNode)Parent.getUserObject();
+        
+        DefaultMutableTreeNode root =(DefaultMutableTreeNode) archiveStructure.getRoot();
+        Enumeration children = root.children();
+        entryNode actual = (entryNode)root.getUserObject();
+        DefaultMutableTreeNode daddy= null, siguiente = null;
+        
+        if(actual.getName().equals(NodoPadre.getName())){
+            daddy = root;
+        }
+        
+      if (children != null) {
+        while (children.hasMoreElements()) {
+            siguiente = (DefaultMutableTreeNode) children.nextElement();
+            actual = (entryNode)siguiente.getUserObject();
+            if(actual.getName().equals(NodoPadre.getName())){
+                daddy = siguiente;
+            }
+        }
+      }
+        
+        archiveStructure.insertNodeInto(new DefaultMutableTreeNode(hijo), daddy, 0);
+        saveToBinaryFile();
+        System.out.println("Archive Structure ahorita es");
+        System.out.println(getTreeText(archiveStructure, archiveStructure.getRoot(), ""));
+        return true;
+    }
+
+    
+    
+  private static String getTreeText(DefaultTreeModel model, Object object, String indent) {
+    String myRow = indent + object + "\n";
+    for (int i = 0; i < model.getChildCount(object); i++) {
+        myRow += getTreeText(model, model.getChild(object, i), indent + "  ");
+    }
+    return myRow;
+}
+    
 }

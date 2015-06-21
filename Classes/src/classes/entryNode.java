@@ -66,6 +66,11 @@ public class entryNode implements Serializable{
     public void setDir(boolean isDir) {
         this.isDir = isDir;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
     
     
     

@@ -6,12 +6,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import rmi.RMI;
+import server.RMIServer;
 
 public class VentanaPrincipal extends JFrame {
 
@@ -19,15 +28,19 @@ public class VentanaPrincipal extends JFrame {
     JTextArea TextArea = new JTextArea(25, 25);
     JTree Tree = new JTree();
     JScrollPane ScrollPane;
+    
 
-    public VentanaPrincipal() {
+    public VentanaPrincipal() throws RemoteException {
         super("Ventana Principal");
         this.dispose();
         this.setLocationRelativeTo(null);
         this.setSize(615, 480);
 
         Panel.setBackground(Color.GRAY);
-
+        final RMI serverConn = initRMI();
+        Tree.setModel(serverConn.getTreeModel());
+        
+        
         Tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
@@ -63,6 +76,7 @@ public class VentanaPrincipal extends JFrame {
                                                 TreePath tp = Tree.getSelectionPath();
                                                 DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
                                                 String name = JOptionPane.showInputDialog("Ingrese el nombre del archivo:");
+                                                
                                                 model.insertNodeInto(new DefaultMutableTreeNode(name), (DefaultMutableTreeNode) tp.getLastPathComponent(), insertNode.getChildCount());
                                                 model.reload();
 
@@ -81,14 +95,34 @@ public class VentanaPrincipal extends JFrame {
                         MenuItemDirectory.addActionListener(
                                 new ActionListener() {
                                     public void actionPerformed(ActionEvent Event) {
-                                        System.out.println("Directorio");
-                                        DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
-                                        TreePath tp = Tree.getSelectionPath();
-                                        DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
-                                        String Dir = JOptionPane.showInputDialog("Ingrese el nombre del Directorio");
-                                        model.insertNodeInto(new DefaultMutableTreeNode(Dir), (DefaultMutableTreeNode) tp.getLastPathComponent(), tp.getPathCount());
-                                        model.reload();
-                                        //addDirectory(insertNode, "texto");
+                                        try {
+                                            System.out.println("Directorio");
+                                            DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                                            TreePath tp = Tree.getSelectionPath();
+                                            String Dir = JOptionPane.showInputDialog("Ingrese el nombre del Directorio");
+                                           /*
+                                            model.insertNodeInto(new DefaultMutableTreeNode(hijo), Parent, 0)
+                                            model.insertNodeInto(new DefaultMutableTreeNode(Dir), (DefaultMutableTreeNode) tp.getLastPathComponent(), 0);
+                                            model.reload();
+                                            */
+                                            
+                                            
+                                            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                                            System.out.println("Mi path es: ");
+                                            System.out.println(parent.getPath());
+                                                    
+                                            if(serverConn.addDirectory(parent, Dir)){
+                                                Tree.setModel(serverConn.getTreeModel());
+                                                ((DefaultTreeModel)Tree.getModel()).reload();
+                                            }else{
+                                                
+                                                System.out.println("No se pudo");
+                                            }
+                                            
+                                            //addDirectory(insertNode, "texto");
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
                                     }
                                 });
                     }
@@ -107,17 +141,32 @@ public class VentanaPrincipal extends JFrame {
         this.setVisible(true);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException {
         new VentanaPrincipal();
     }
 
+    private RMI initRMI(){
+        try {
+            Registry reg = LocateRegistry.getRegistry("127.0.0.1",1101);
+            
+            RMI rmi = (RMI) reg.lookup("server");
+            System.out.println("Client connection to the server was successful");
+            return rmi;
+        } catch (Exception ex) {
+            Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+        
+    }
+    
     private void addDirectory(DefaultMutableTreeNode Father, String Name) {
+        
         DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 //        entryNode novo = new entryNode(Name, (entryNode) Father.getUserObject(), -1, true);
         model.insertNodeInto(new DefaultMutableTreeNode(Name), Father, 0);
     }
-
+ 
     private void addTextFile(DefaultMutableTreeNode Father, String Name, String Content) {
 
     }
