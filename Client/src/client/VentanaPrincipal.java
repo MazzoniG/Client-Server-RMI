@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import rmi.RMI;
@@ -38,6 +39,9 @@ public class VentanaPrincipal extends JFrame {
         Panel.setBackground(Color.GRAY);
         final RMI serverConn = initRMI();
         Tree.setModel(serverConn.getTreeModel());
+        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) Tree.getCellRenderer();
+        MyRenderer newRender = new MyRenderer(renderer.getDefaultClosedIcon(), renderer.getDefaultLeafIcon());
+        Tree.setCellRenderer(newRender);
 
         Tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -46,32 +50,38 @@ public class VentanaPrincipal extends JFrame {
                     Rectangle pathBounds = Tree.getUI().getPathBounds(Tree, path);
                     if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
 
-                        JPopupMenu menu = new JPopupMenu();
-                        JMenuItem MenuItemFile = new JMenuItem("Crear Archivo");
-                        menu.add(MenuItemFile);
-                        JMenuItem MenuItemDirectory = new JMenuItem("Crear Directorio");
-                        menu.add(MenuItemDirectory);
-                        menu.show(Tree, pathBounds.x, pathBounds.y + pathBounds.height);
+                        DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                        TreePath tp = Tree.getSelectionPath();
+                        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                        entryNode nodo = (entryNode) parent.getUserObject();
 
-                        MenuItemFile.addActionListener(
-                                new ActionListener() {
-                                    public void actionPerformed(ActionEvent Event) {
-                                        try {
-                                            String Text = TextArea.getText();
-                                            DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
-                                            TreePath tp = Tree.getSelectionPath();
-                                            String archivo = JOptionPane.showInputDialog("Ingrese el nombre del archivo");
-                                            
-                                            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
-                                            
-                                            if (serverConn.addFile(archivo, parent,Text)) {
-                                                Tree.setModel(serverConn.getTreeModel());
-                                                ((DefaultTreeModel) Tree.getModel()).reload();
-                                            } else {
-                                                
-                                                System.out.println("No se pudo");
-                                            }
-                                            
+                        if (nodo.isDir()) {
+                            JPopupMenu menu = new JPopupMenu();
+                            JMenuItem MenuItemFile = new JMenuItem("Crear Archivo");
+                            menu.add(MenuItemFile);
+                            JMenuItem MenuItemDirectory = new JMenuItem("Crear Directorio");
+                            menu.add(MenuItemDirectory);
+                            menu.show(Tree, pathBounds.x, pathBounds.y + pathBounds.height);
+
+                            MenuItemFile.addActionListener(
+                                    new ActionListener() {
+                                        public void actionPerformed(ActionEvent Event) {
+                                            try {
+                                                String Text = TextArea.getText();
+                                                DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                                                TreePath tp = Tree.getSelectionPath();
+                                                String archivo = JOptionPane.showInputDialog("Ingrese el nombre del archivo");
+
+                                                DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
+
+                                                if (serverConn.addFile(archivo, parent, Text)) {
+                                                    Tree.setModel(serverConn.getTreeModel());
+                                                    ((DefaultTreeModel) Tree.getModel()).reload();
+                                                } else {
+
+                                                    System.out.println("No se pudo");
+                                                }
+
 //                                        try {
 //                                            if (Tree.getSelectionPath().toString().split(",").length > 2) {
 //                                                DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
@@ -102,42 +112,44 @@ public class VentanaPrincipal extends JFrame {
 //                                            }
 //                                        } catch (Exception e) {
 //                                        }
-                                        } catch (RemoteException ex) {
-                                            Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                });
-
-                        MenuItemDirectory.addActionListener(
-                                new ActionListener() {
-                                    public void actionPerformed(ActionEvent Event) {
-                                        try {
-                                            System.out.println("Directorio");
-                                            DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
-                                            TreePath tp = Tree.getSelectionPath();
-                                            String Dir = JOptionPane.showInputDialog("Ingrese el nombre del Directorio");
-                                            /*
-                                             model.insertNodeInto(new DefaultMutableTreeNode(hijo), Parent, 0)
-                                             model.insertNodeInto(new DefaultMutableTreeNode(Dir), (DefaultMutableTreeNode) tp.getLastPathComponent(), 0);
-                                             model.reload();
-                                             */
-
-                                            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
-
-                                            if (serverConn.addDirectory(parent, Dir)) {
-                                                Tree.setModel(serverConn.getTreeModel());
-                                                ((DefaultTreeModel) Tree.getModel()).reload();
-                                            } else {
-
-                                                System.out.println("No se pudo");
+                                            } catch (RemoteException ex) {
+                                                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                                             }
-
-                                            //addDirectory(insertNode, "texto");
-                                        } catch (Exception ex) {
-                                            Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                                         }
-                                    }
-                                });
+                                    });
+
+                            MenuItemDirectory.addActionListener(
+                                    new ActionListener() {
+                                        public void actionPerformed(ActionEvent Event) {
+                                            try {
+                                                System.out.println("Directorio");
+                                                DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                                                TreePath tp = Tree.getSelectionPath();
+                                                String Dir = JOptionPane.showInputDialog("Ingrese el nombre del Directorio");
+                                                /*
+                                                 model.insertNodeInto(new DefaultMutableTreeNode(hijo), Parent, 0)
+                                                 model.insertNodeInto(new DefaultMutableTreeNode(Dir), (DefaultMutableTreeNode) tp.getLastPathComponent(), 0);
+                                                 model.reload();
+                                                 */
+
+                                                DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
+
+                                                if (serverConn.addDirectory(parent, Dir)) {
+                                                    Tree.setModel(serverConn.getTreeModel());
+                                                    ((DefaultTreeModel) Tree.getModel()).reload();
+                                                } else {
+
+                                                    System.out.println("No se pudo");
+                                                }
+
+                                                //addDirectory(insertNode, "texto");
+                                            } catch (Exception ex) {
+                                                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                        }
+                                    });
+                        }
+
                     }
                 }
             }
