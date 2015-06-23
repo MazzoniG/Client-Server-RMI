@@ -50,6 +50,10 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
 
     static DefaultTreeModel archiveStructure = null;
     static int roundRobin = 1;
+    
+    public static DSRMI rmi1;
+    public static DSRMI rmi2;
+    public static DSRMI rmi3;
 
     public static void main(String args[]) {
         
@@ -67,17 +71,17 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
 
             
             Registry reg1 = LocateRegistry.getRegistry("127.0.0.1",connections.get("Machine1").getPort());
-            DSRMI rmi1 = (DSRMI) reg1.lookup("Machine1");
+            rmi1 = (DSRMI) reg1.lookup("Machine1");
             System.out.println("Connected to Machine1");
             rmi1.printInServerSide("Popeye, Why you do this?");
 
             Registry reg2 = LocateRegistry.getRegistry("127.0.0.1",connections.get("Machine2").getPort());
-            DSRMI rmi2 = (DSRMI) reg2.lookup("Machine2");
+            rmi2 = (DSRMI) reg2.lookup("Machine2");
             System.out.println("Connected to Machine2");
             rmi2.printInServerSide("Popeye, Why you do this? Again?");
             
             Registry reg3 = LocateRegistry.getRegistry("127.0.0.1",connections.get("Machine3").getPort());
-            DSRMI rmi3 = (DSRMI) reg3.lookup("Machine3");
+            rmi3 = (DSRMI) reg3.lookup("Machine3");
             System.out.println("Connected to Machine3");
             rmi3.printInServerSide("Popeye, Why you do this? Over and Over Again?");
             
@@ -209,7 +213,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         }
 
         entryNode hijo = new entryNode(Name, (entryNode) Parent.getUserObject(), roundRobin, false);
-        nextMachine();
+        
         entryNode NodoPadre = (entryNode) Parent.getUserObject();
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) archiveStructure.getRoot();
@@ -224,8 +228,21 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         saveToBinaryFile();
 
         //MAGIA DE DATACENTERS PARAMS = TEXT,PATH
-        
-        
+        if (roundRobin == 1) {
+            if (!rmi1.createFile(Text, Path)) {
+                System.out.println("No se pudo crear el archivo");
+            }
+            
+        }else if(roundRobin ==2){
+            if (!rmi2.createFile(Text, Path)) {
+                System.out.println("No se pudo crear el archivo");
+            }
+        }else{
+            if (!rmi3.createFile(Text, Path)) {
+                System.out.println("No se pudo crear el archivo");
+            }
+        }
+        nextMachine();
         return true;
     }
 

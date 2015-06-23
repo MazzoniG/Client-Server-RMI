@@ -8,11 +8,16 @@ package DataCenter;
 import classes.Credentials;
 import dsRMI.DSRMI;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -85,5 +90,23 @@ public class Machine3 extends UnicastRemoteObject implements DSRMI {
         }
         System.err.println("No se encontro el archivo");
         return null;
+    }
+    @Override
+    public boolean createFile(String content, String name) throws RemoteException {
+        PrintWriter writer = null;
+        name = dataDirectory.getAbsolutePath()+"\\"+name;
+        System.out.println("Nombre del Archivo: "+name);
+        try {
+            writer = new PrintWriter(name, "UTF-8");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Machine1.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Machine1.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        writer.println(content);
+        writer.close();
+        return true;
     }
 }
