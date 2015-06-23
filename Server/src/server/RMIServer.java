@@ -218,7 +218,8 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         DefaultMutableTreeNode daddy = searchForDaddy(root, NodoPadre);
 
         String Path = getPath(hijo);
-        
+        System.out.println("Soy un path");
+        System.out.println(Path);
         archiveStructure.insertNodeInto(new DefaultMutableTreeNode(hijo), daddy, 0);
         saveToBinaryFile();
 
@@ -236,7 +237,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             nodo = nodo.getFather();
         }
 
-        return path;
+        return path.replace('/', '#');
     }
 
 }
