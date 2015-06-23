@@ -31,7 +31,7 @@ public class RMIClient {
             String text = rmi.getData("Memo");
             entryNode novo = (entryNode)rmi.getNode();
             System.out.println("Test\n"+novo.getName());
-            rmi.printInServerSide("This text has been printed in the side server ;)");
+            rmi.printInServerSide("This text has been printed in the side serv  er ;)");
 //            for (int i = 0; i < 10; i++) {
 //                String msg = in.nextLine();
 //                rmi.printInServerSide(msg);
