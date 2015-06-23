@@ -109,4 +109,10 @@ public class Machine2 extends UnicastRemoteObject implements DSRMI{
         writer.close();
         return true;
     }
+    @Override
+    public boolean deleteFile(String name) throws RemoteException {
+        name = dataDirectory.getAbsolutePath()+"\\"+name;
+        File file = new File(name);
+        return file.delete();
+    }
 }

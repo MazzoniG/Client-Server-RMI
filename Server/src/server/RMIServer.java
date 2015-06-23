@@ -256,5 +256,9 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
 
         return path.replace('/', '#');
     }
+    
+    public boolean deleteFile(String name) throws RemoteException{
+        return rmi1.deleteFile(name) || rmi2.deleteFile(name) || rmi3.deleteFile(name);
+    }
 
 }
