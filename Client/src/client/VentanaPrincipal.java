@@ -41,7 +41,9 @@ public class VentanaPrincipal extends JFrame {
         Tree.setModel(serverConn.getTreeModel());
         DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) Tree.getCellRenderer();
         MyRenderer newRender = new MyRenderer(renderer.getDefaultClosedIcon(), renderer.getDefaultLeafIcon());
+        
         Tree.setCellRenderer(newRender);
+        
 
         Tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
