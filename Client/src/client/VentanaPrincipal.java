@@ -22,6 +22,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import rmi.RMI;
 import server.RMIServer;
+import static server.RMIServer.rmi1;
+import static server.RMIServer.rmi2;
+import static server.RMIServer.rmi3;
 
 public class VentanaPrincipal extends JFrame {
 
@@ -41,14 +44,13 @@ public class VentanaPrincipal extends JFrame {
         Tree.setModel(serverConn.getTreeModel());
         DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) Tree.getCellRenderer();
         MyRenderer newRender = new MyRenderer(renderer.getDefaultClosedIcon(), renderer.getDefaultLeafIcon());
-        
+
         Tree.setCellRenderer(newRender);
-        
 
         Tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e)){
-                    if(e.getClickCount()==2){
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    if (e.getClickCount() == 2) {
                         TreePath path = Tree.getPathForLocation(e.getX(), e.getY());
                         Rectangle pathBounds = Tree.getUI().getPathBounds(Tree, path);
                         if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
@@ -56,7 +58,7 @@ public class VentanaPrincipal extends JFrame {
                             TreePath tp = Tree.getSelectionPath();
                             DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
                             entryNode nodo = (entryNode) parent.getUserObject();
-                            
+
                             if (!nodo.isDir()) {
                                 try {
                                     TextArea.setText(serverConn.streamFromServer(nodo));
@@ -77,8 +79,8 @@ public class VentanaPrincipal extends JFrame {
                         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
                         entryNode nodo = (entryNode) parent.getUserObject();
 
+                        JPopupMenu menu = new JPopupMenu();
                         if (nodo.isDir()) {
-                            JPopupMenu menu = new JPopupMenu();
                             JMenuItem MenuItemFile = new JMenuItem("Crear Archivo");
                             menu.add(MenuItemFile);
                             JMenuItem MenuItemDirectory = new JMenuItem("Crear Directorio");
@@ -170,8 +172,33 @@ public class VentanaPrincipal extends JFrame {
                                             }
                                         }
                                     });
-                        }
+                        } else {
+                            JMenuItem MenuItemDelete = new JMenuItem("Borrar Archivo");
+                            menu.add(MenuItemDelete);
+                            menu.show(Tree, pathBounds.x, pathBounds.y + pathBounds.height);
 
+                            DefaultTreeModel modelo = (DefaultTreeModel) Tree.getModel();
+                            TreePath tpo = Tree.getSelectionPath();
+                            final DefaultMutableTreeNode parento = (DefaultMutableTreeNode) tpo.getLastPathComponent();
+
+                            MenuItemDelete.addActionListener(
+                                    new ActionListener() {
+                                        public void actionPerformed(ActionEvent Event) {
+
+                                            try {
+                                                if (serverConn.deleteFile(parento)) {
+                                                    Tree.setModel(serverConn.getTreeModel());
+                                                    ((DefaultTreeModel) Tree.getModel()).reload();
+                                                } else {
+                                                    JOptionPane.showMessageDialog(null, "No se puede acceder en estos momentos al servidor");
+                                                }
+                                            } catch (RemoteException ex) {
+                                                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+
+                                        }
+                                    });
+                        }
                     }
                 }
             }

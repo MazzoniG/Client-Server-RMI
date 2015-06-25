@@ -2,3 +2,5 @@
 /Server/build/
 /Server/dist/
 /Client/dist/
+/Classes/nbproject/private/
+/Classes/dist/

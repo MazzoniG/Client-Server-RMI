@@ -270,7 +270,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         return path.replace('/', '#');
     }
 
-
+    @Override
     public boolean deleteFile(DefaultMutableTreeNode nodo) throws RemoteException {
         entryNode toDel = (entryNode)nodo.getUserObject();
        int option = toDel.getDataNode();
@@ -282,11 +282,6 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         } else {
             return rmi3.deleteFile(name);
         }
-    }
-
-    public boolean deleteFile(String name) throws RemoteException {
-        return rmi1.deleteFile(name) || rmi2.deleteFile(name) || rmi3.deleteFile(name);
-
     }
 
     @Override
