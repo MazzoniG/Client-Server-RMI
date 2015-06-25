@@ -7,8 +7,11 @@ package DataCenter;
 
 import classes.Credentials;
 import dsRMI.DSRMI;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
@@ -115,4 +118,23 @@ public class Machine2 extends UnicastRemoteObject implements DSRMI{
         File file = new File(name);
         return file.delete();
     }
+    
+    @Override
+    public String getFileContent(String name)throws RemoteException{
+         String collectedInfo = "";
+            try {
+                String line = "";
+                name = dataDirectory.getAbsolutePath()+"\\"+name;
+                FileReader f = new FileReader(name);
+                BufferedReader b = new BufferedReader(f);
+                while ((line = b.readLine()) != null) {
+                    collectedInfo += line;
+                }
+                b.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return collectedInfo;
+    }
+    
 }

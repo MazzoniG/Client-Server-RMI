@@ -3,10 +3,13 @@ package server;
 import classes.Credentials;
 import classes.entryNode;
 import dsRMI.DSRMI;
+import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
@@ -16,6 +19,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import rmi.RMI;
@@ -211,6 +216,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             Name += ".txt";
         }
 
+
         Enumeration hijos = Parent.children();
         while(hijos.hasMoreElements()){
             DefaultMutableTreeNode act = (DefaultMutableTreeNode) hijos.nextElement();
@@ -218,7 +224,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             if(nodoActual.getName().equals(Name))
                 return false;
         }
-        
+
         entryNode hijo = new entryNode(Name, (entryNode) Parent.getUserObject(), roundRobin, false);
 
         entryNode NodoPadre = (entryNode) Parent.getUserObject();
@@ -264,6 +270,7 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         return path.replace('/', '#');
     }
 
+
     public boolean deleteFile(DefaultMutableTreeNode nodo) throws RemoteException {
         entryNode toDel = (entryNode)nodo.getUserObject();
        int option = toDel.getDataNode();
@@ -275,7 +282,29 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
         } else {
             return rmi3.deleteFile(name);
         }
+    }
+
+    public boolean deleteFile(String name) throws RemoteException {
+        return rmi1.deleteFile(name) || rmi2.deleteFile(name) || rmi3.deleteFile(name);
 
     }
 
+    @Override
+    public String streamFromServer(entryNode node) throws RemoteException {
+        String name = getPath(node);
+        System.out.println(node.getDataNode());
+        String retrievedFile = "";
+        if (node.getDataNode() == 1) {
+            retrievedFile = rmi1.getFileContent(name);
+        } else {
+            if (node.getDataNode() == 2) {
+                retrievedFile = rmi2.getFileContent(name);
+            } else {
+                if (node.getDataNode() == 3) {
+                    retrievedFile = rmi3.getFileContent(name);
+                }
+            }
+        }
+        return retrievedFile;
+    }
 }
