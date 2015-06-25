@@ -47,6 +47,26 @@ public class VentanaPrincipal extends JFrame {
 
         Tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
+                if(SwingUtilities.isLeftMouseButton(e)){
+                    if(e.getClickCount()==2){
+                        TreePath path = Tree.getPathForLocation(e.getX(), e.getY());
+                        Rectangle pathBounds = Tree.getUI().getPathBounds(Tree, path);
+                        if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
+                            DefaultTreeModel model = (DefaultTreeModel) Tree.getModel();
+                            TreePath tp = Tree.getSelectionPath();
+                            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                            entryNode nodo = (entryNode) parent.getUserObject();
+                            
+                            if (!nodo.isDir()) {
+                                try {
+                                    TextArea.setText(serverConn.streamFromServer(nodo));
+                                } catch (RemoteException ex) {
+                                    Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }
+                    }
+                }
                 if (SwingUtilities.isRightMouseButton(e)) {
                     TreePath path = Tree.getPathForLocation(e.getX(), e.getY());
                     Rectangle pathBounds = Tree.getUI().getPathBounds(Tree, path);
