@@ -179,19 +179,25 @@ public class VentanaPrincipal extends JFrame {
 
                             DefaultTreeModel modelo = (DefaultTreeModel) Tree.getModel();
                             TreePath tpo = Tree.getSelectionPath();
-                            DefaultMutableTreeNode parento = (DefaultMutableTreeNode) tpo.getLastPathComponent();
+                            final DefaultMutableTreeNode parento = (DefaultMutableTreeNode) tpo.getLastPathComponent();
 
-                            try {
-                                if (serverConn.deleteFile(parento)) {
-                                    Tree.setModel(serverConn.getTreeModel());
-                                    ((DefaultTreeModel) Tree.getModel()).reload();
-                                }else{
-                                    JOptionPane.showMessageDialog(null, "No se puede acceder en estos momentos al servidor");
-                                }
-                            } catch (RemoteException ex) {
-                                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                            MenuItemDelete.addActionListener(
+                                    new ActionListener() {
+                                        public void actionPerformed(ActionEvent Event) {
 
+                                            try {
+                                                if (serverConn.deleteFile(parento)) {
+                                                    Tree.setModel(serverConn.getTreeModel());
+                                                    ((DefaultTreeModel) Tree.getModel()).reload();
+                                                } else {
+                                                    JOptionPane.showMessageDialog(null, "No se puede acceder en estos momentos al servidor");
+                                                }
+                                            } catch (RemoteException ex) {
+                                                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+
+                                        }
+                                    });
                         }
                     }
                 }
