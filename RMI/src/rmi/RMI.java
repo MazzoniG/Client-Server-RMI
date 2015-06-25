@@ -16,4 +16,5 @@ public interface RMI extends Remote {
     public boolean addDirectory(DefaultMutableTreeNode Parent, String Name)throws RemoteException;
     public boolean addFile(String Name, DefaultMutableTreeNode Parent, String Text)throws RemoteException;
     public String streamFromServer(entryNode node)throws RemoteException;
+    public boolean deleteFile(DefaultMutableTreeNode nodo) throws RemoteException;
 }
