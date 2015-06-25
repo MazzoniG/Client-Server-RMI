@@ -16,7 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Arrays; 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -216,13 +216,13 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             Name += ".txt";
         }
 
-
         Enumeration hijos = Parent.children();
-        while(hijos.hasMoreElements()){
+        while (hijos.hasMoreElements()) {
             DefaultMutableTreeNode act = (DefaultMutableTreeNode) hijos.nextElement();
-            entryNode nodoActual = (entryNode)act.getUserObject();
-            if(nodoActual.getName().equals(Name))
+            entryNode nodoActual = (entryNode) act.getUserObject();
+            if (nodoActual.getName().equals(Name)) {
                 return false;
+            }
         }
 
         entryNode hijo = new entryNode(Name, (entryNode) Parent.getUserObject(), roundRobin, false);
@@ -272,14 +272,35 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
 
     @Override
     public boolean deleteFile(DefaultMutableTreeNode nodo) throws RemoteException {
-        entryNode toDel = (entryNode)nodo.getUserObject();
-       int option = toDel.getDataNode();
-       String name = getPath(toDel);
+        entryNode toDel = (entryNode) nodo.getUserObject();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) archiveStructure.getRoot();
+        DefaultMutableTreeNode papa = searchForDaddy(root,(entryNode)nodo.getUserObject());
+        
+        papa = searchForDaddy(root,(entryNode)papa.getUserObject());
+        DefaultMutableTreeNode real = (DefaultMutableTreeNode) papa.getParent();
+        int option = toDel.getDataNode();
+        String name = getPath(toDel);
+        
+        entryNode FAGA = (entryNode)real.getUserObject();
+        System.out.println("FAGA NAME:");
+        System.out.println(FAGA.getName());
+        Enumeration<DefaultMutableTreeNode> e = real.children();
+        
+        int index =real.getIndex(papa);
+        real.remove(papa);
+        archiveStructure.nodesWereRemoved(papa, new int[]{index}, null);
+       
+        
+      
+        
         if (option == 1) {
+            saveToBinaryFile();
             return rmi1.deleteFile(name);
         } else if (option == 2) {
+            saveToBinaryFile();
             return rmi2.deleteFile(name);
         } else {
+            saveToBinaryFile();
             return rmi3.deleteFile(name);
         }
     }
