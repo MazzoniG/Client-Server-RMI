@@ -25,9 +25,9 @@ import rmi.RMI;
  * @author Guillermo
  */
 public class RMIServer extends UnicastRemoteObject implements RMI {
-    
-    private static HashMap<String,Credentials> connections = new HashMap();
-    
+
+    private static HashMap<String, Credentials> connections = new HashMap();
+
     public RMIServer() throws RemoteException {
         super();
     }
@@ -50,41 +50,40 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
 
     static DefaultTreeModel archiveStructure = null;
     static int roundRobin = 1;
-    
+
     public static DSRMI rmi1;
     public static DSRMI rmi2;
     public static DSRMI rmi3;
 
     public static void main(String args[]) {
-        
+
         //loadBinaryFile();
         try {
             connections.put("Server", new Credentials(1101));
             connections.put("Machine1", new Credentials(1102));
             connections.put("Machine2", new Credentials(1103));
             connections.put("Machine3", new Credentials(1104));
-            
+
             Registry reg = LocateRegistry.createRegistry(connections.get("Server").getPort());
             reg.rebind("server", new RMIServer());
             System.out.println("Server started..");
             loadBinaryFile();
 
-            
-            Registry reg1 = LocateRegistry.getRegistry("127.0.0.1",connections.get("Machine1").getPort());
+            Registry reg1 = LocateRegistry.getRegistry("127.0.0.1", connections.get("Machine1").getPort());
             rmi1 = (DSRMI) reg1.lookup("Machine1");
             System.out.println("Connected to Machine1");
             rmi1.printInServerSide("Popeye, Why you do this?");
 
-            Registry reg2 = LocateRegistry.getRegistry("127.0.0.1",connections.get("Machine2").getPort());
+            Registry reg2 = LocateRegistry.getRegistry("127.0.0.1", connections.get("Machine2").getPort());
             rmi2 = (DSRMI) reg2.lookup("Machine2");
             System.out.println("Connected to Machine2");
             rmi2.printInServerSide("Popeye, Why you do this? Again?");
-            
-            Registry reg3 = LocateRegistry.getRegistry("127.0.0.1",connections.get("Machine3").getPort());
+
+            Registry reg3 = LocateRegistry.getRegistry("127.0.0.1", connections.get("Machine3").getPort());
             rmi3 = (DSRMI) reg3.lookup("Machine3");
             System.out.println("Connected to Machine3");
             rmi3.printInServerSide("Popeye, Why you do this? Over and Over Again?");
-            
+
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -207,13 +206,21 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
     }
 
     @Override
-    public boolean addFile(String Name, DefaultMutableTreeNode Parent, String Text) throws RemoteException{
+    public boolean addFile(String Name, DefaultMutableTreeNode Parent, String Text) throws RemoteException {
         if (!Name.endsWith(".txt")) {
             Name += ".txt";
         }
 
-        entryNode hijo = new entryNode(Name, (entryNode) Parent.getUserObject(), roundRobin, false);
+        Enumeration hijos = Parent.children();
+        while(hijos.hasMoreElements()){
+            DefaultMutableTreeNode act = (DefaultMutableTreeNode) hijos.nextElement();
+            entryNode nodoActual = (entryNode)act.getUserObject();
+            if(nodoActual.getName().equals(Name))
+                return false;
+        }
         
+        entryNode hijo = new entryNode(Name, (entryNode) Parent.getUserObject(), roundRobin, false);
+
         entryNode NodoPadre = (entryNode) Parent.getUserObject();
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) archiveStructure.getRoot();
@@ -232,12 +239,12 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
             if (!rmi1.createFile(Text, Path)) {
                 System.out.println("No se pudo crear el archivo");
             }
-            
-        }else if(roundRobin ==2){
+
+        } else if (roundRobin == 2) {
             if (!rmi2.createFile(Text, Path)) {
                 System.out.println("No se pudo crear el archivo");
             }
-        }else{
+        } else {
             if (!rmi3.createFile(Text, Path)) {
                 System.out.println("No se pudo crear el archivo");
             }
@@ -256,9 +263,19 @@ public class RMIServer extends UnicastRemoteObject implements RMI {
 
         return path.replace('/', '#');
     }
-    
-    public boolean deleteFile(String name) throws RemoteException{
-        return rmi1.deleteFile(name) || rmi2.deleteFile(name) || rmi3.deleteFile(name);
+
+    public boolean deleteFile(DefaultMutableTreeNode nodo) throws RemoteException {
+        entryNode toDel = (entryNode)nodo.getUserObject();
+       int option = toDel.getDataNode();
+       String name = getPath(toDel);
+        if (option == 1) {
+            return rmi1.deleteFile(name);
+        } else if (option == 2) {
+            return rmi2.deleteFile(name);
+        } else {
+            return rmi3.deleteFile(name);
+        }
+
     }
 
 }
